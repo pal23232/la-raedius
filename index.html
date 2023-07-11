@@ -20,7 +20,7 @@
 <div id="price-per-sqft-slider" style="width:200px; margin: 20px;"></div>
 
 <!-- Map Container -->
-<div id="map" style="width: 100%; height: 500px;"></div>
+<div id="map" style="width: 100%; height: 700px;"></div>
 
 
 <!-- noUiSlider CDN -->
@@ -53,15 +53,16 @@ map.on('load', function () {
         'source': 'your-source',
         'source-layer': 'CA_MAPBOX-9n6m1z', // Source layer from tileset
         'paint': {
-            'circle-radius': 10,
-           // 'circle-radius': {
-            //    'stops': [[10, 5], [14, 20], [18, 100]]  // adjust the circle-radius at different zoom levels
-            //},
+            'circle-radius': {
+                'stops': [[10, 3], [14, 120], [18, 1000]]  // adjust the circle-radius at different zoom levels
+            },
             'circle-color': 'rgba(0, 255, 255, 0.4)', // 40% transparent green
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff'
         }
     });
+
+    map.addControl(new mapboxgl.NavigationControl());
 
     map.on('click', 'your-layer', function (e) {
         const feature = e.features[0];
@@ -154,7 +155,7 @@ map.on('load', function () {
     });
     
     noUiSlider.create(medianIncomeSlider, {
-        start: [0, 150000],
+        start: [0, 250000],
         connect: true,
         range: {
             'min': 0,
