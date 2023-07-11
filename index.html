@@ -204,8 +204,8 @@ map.on('load', function () {
         const maxProperties = parseFloat(values[1]);
     
         map.setFilter('your-layer', ['all', 
-        ['>=', 'num_properties', minProperties], 
-        ['<=', 'num_properties', maxProperties],
+        ['>=', 'HOUSING_UNITS', minProperties], 
+        ['<=', 'HOUSING_UNITS', maxProperties],
         ]);
         numHomesRangeLabel.innerHTML = `${minProperties.toFixed(0)} - ${maxProperties.toFixed(0)}`;
     });
@@ -241,6 +241,22 @@ map.on('load', function () {
     <div id="median-income-slider" class="slider"></div>
     <p>Median income: <span id="median-income-range"></span></p>
     
+
+    <p>
+        <br><br>
+        <b>Benchmarks</b><br><br>
+
+        Emerson(Temescal):<br>
+        + Homes sold: 183<br>
+        + Pop: 1800<br>
+        + Income: $138k<br>
+        + Units: 969<br>
+        <br>
+        Otis (Alameda)<br>
+        + Pop: 1915<br>
+        + Income: 96k<br>
+        + Units: 716
+    </p>
     </body>
     </html>
     
