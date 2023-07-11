@@ -111,10 +111,11 @@ map.on('load', function () {
 
     const numPropertiesSlider = document.getElementById('num-properties-slider');
     const medianIncomeSlider = document.getElementById('median-income-slider');
+    const numHomesSlider = document.getElementById('num-homes-slider');
 
     const numPropertiesRangeLabel = document.getElementById('num-properties-range');
     const medianIncomeRangeLabel = document.getElementById('median-income-range');
-
+    const numHomesRangeLabel = document.getElementById('num-homes-range');
     
     noUiSlider.create(price_slider, {
         start: [0, 1500],
@@ -140,6 +141,15 @@ map.on('load', function () {
         range: {
             'min': 0,
             'max': 500
+        }
+    });
+
+    noUiSlider.create(numHomesSlider, {
+        start: [0, 2700],
+        connect: true,
+        range: {
+            'min': 0,
+            'max': 2700
         }
     });
     
@@ -187,6 +197,18 @@ map.on('load', function () {
         ]);
         numPropertiesRangeLabel.innerHTML = `${minProperties.toFixed(0)} - ${maxProperties.toFixed(0)}`;
     });
+
+    numHomesSlider.noUiSlider.on('update', function (values, handle) {
+        const minProperties = parseFloat(values[0]);
+        const maxProperties = parseFloat(values[1]);
+    
+        map.setFilter('your-layer', ['all', 
+        ['>=', 'num_properties', minProperties], 
+        ['<=', 'num_properties', maxProperties],
+        ]);
+        numHomesRangeLabel.innerHTML = `${minProperties.toFixed(0)} - ${maxProperties.toFixed(0)}`;
+    });
+    
     
     medianIncomeSlider.noUiSlider.on('update', function (values, handle) {
         const minIncome = parseFloat(values[0]);
@@ -210,7 +232,10 @@ map.on('load', function () {
     <p>School score: <span id="school_score_range"></span></p> <!-- Corrected ID name here -->
 
         <div id="num-properties-slider" class="slider"></div>
-    <p>Number of properties: <span id="num-properties-range"></span></p>
+    <p>Properties sold last year: <span id="num-properties-range"></span></p>
+
+    <div id="num-homes-slider" class="slider"></div>
+    <p>Number of homes in radius: <span id="num-homes-range"></span></p>
 
     <div id="median-income-slider" class="slider"></div>
     <p>Median income: <span id="median-income-range"></span></p>
