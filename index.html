@@ -1,1 +1,209 @@
-<p>hello world</p>
+<!DOCTYPE html>
+<html>
+
+<style>
+    .slider {
+        width: 33vw; 
+        margin-top:50px;
+        margin-bottom:10px;
+        margin-left:20px
+        
+    }
+    </style>
+<body>
+
+<!-- Slider UI -->
+<div id="school-score-slider" style="width:200px; margin: 20px;"></div>
+<div id="price-per-sqft-slider" style="width:200px; margin: 20px;"></div>
+
+<!-- Map Container -->
+<div id="map" style="width: 100%; height: 500px;"></div>
+
+
+<!-- noUiSlider CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css" rel="stylesheet" />
+
+<!-- Mapbox GL JS CDN -->
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.5.1/mapbox-gl.css' rel='stylesheet' />
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoicGxldmluMDYiLCJhIjoiY2tmdno4cDZwMWV3azJ0bXRyN3lqc3RjbiJ9.XdaSKICtuuU2qA-N4-FQPA';
+
+// Initialize Mapbox map
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [-118.23621919559525, 34.02030404957499], // Your map's initial center coordinates
+    zoom: 9
+});
+map.on('load', function () {
+    map.addSource('your-source', {
+        type: 'vector',
+        url: 'mapbox://plevin06.8abs16xf'
+    });
+
+    map.addLayer({
+        'id': 'your-layer',
+        'type': 'circle',
+        'source': 'your-source',
+        'source-layer': 'CA_MAPBOX-9n6m1z', // Source layer from tileset
+        'paint': {
+            'circle-radius': {
+                'stops': [[10, 5], [14, 20], [18, 100]]  // adjust the circle-radius at different zoom levels
+            },
+            'circle-color': 'rgba(0, 255, 0, 0.4)', // 40% transparent green
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff'
+        }
+    });
+
+    map.on('click', 'your-layer', function (e) {
+        const feature = e.features[0];
+        const school_name = feature.properties.SCH_NAME;
+        const num_houses = feature.properties.num_properties;
+        const school_rating = feature.properties.school_score;
+        const price_per_sqft = feature.properties.price_per_sqft_median;
+        const livingArea_median = feature.properties.livingArea_median;
+    
+        // Format price_per_sqft to a currency rounded to the nearest dollar
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+        const formattedPricePerSqft = formatter.format(price_per_sqft);
+    
+        // Round livingArea_median to the nearest integer
+        const roundedLivingArea = Math.round(livingArea_median);
+    
+        new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(`
+                <h3>${school_name}</h3>
+                <p># of houses: ${num_houses}</p>
+                <p>school rating: ${school_rating}</p>
+                <p>Price per sqft: ${formattedPricePerSqft}</p>
+                <p>Home size: ${roundedLivingArea} sqft</p>
+            `)
+            .addTo(map);
+    });
+
+    const price_slider = document.getElementById('price-slider');
+    const school_score_slider = document.getElementById('school_score_slider'); // Corrected ID name here
+    
+    const priceRangeLabel = document.getElementById('price-range');
+    const schoolScoreRangeLabel = document.getElementById('school_score_range'); // Corrected ID name here
+
+
+    const numPropertiesSlider = document.getElementById('num-properties-slider');
+    const medianIncomeSlider = document.getElementById('median-income-slider');
+
+    const numPropertiesRangeLabel = document.getElementById('num-properties-range');
+    const medianIncomeRangeLabel = document.getElementById('median-income-range');
+
+    
+    noUiSlider.create(price_slider, {
+        start: [0, 1500],
+        connect: true,
+        range: {
+            'min': 0,
+            'max': 1500
+        }
+    });
+    
+    noUiSlider.create(school_score_slider, { // Corrected variable name here
+        start: [0, 10],
+        connect: true,
+        range: {
+            'min': 0,
+            'max': 10
+        }
+    });
+
+    noUiSlider.create(numPropertiesSlider, {
+        start: [0, 5000],
+        connect: true,
+        range: {
+            'min': 0,
+            'max': 500
+        }
+    });
+    
+    noUiSlider.create(medianIncomeSlider, {
+        start: [0, 150000],
+        connect: true,
+        range: {
+            'min': 0,
+            'max': 250000
+        }
+    });
+    
+    
+    price_slider.noUiSlider.on('update', function (values, handle) {
+        const minPrice = parseFloat(values[0]);
+        const maxPrice = parseFloat(values[1]);
+    
+        map.setFilter('your-layer', ['all', 
+        ['>=', 'price_per_sqft_median', minPrice], 
+        ['<=', 'price_per_sqft_median', maxPrice],
+        ]);
+        priceRangeLabel.innerHTML = `${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`;
+    });
+    
+    school_score_slider.noUiSlider.on('update', function (values, handle) { 
+        const minScore = parseFloat(values[0]);
+        const maxScore = parseFloat(values[1]);
+    
+        map.setFilter('your-layer', ['all', 
+        ['>=', 'school_score', minScore], 
+        ['<=', 'school_score', maxScore],
+        ]);
+        schoolScoreRangeLabel.innerHTML = `${minScore.toFixed(2)} - ${maxScore.toFixed(2)}`; // Corrected variable name here
+
+    
+    });
+
+    numPropertiesSlider.noUiSlider.on('update', function (values, handle) {
+        const minProperties = parseFloat(values[0]);
+        const maxProperties = parseFloat(values[1]);
+    
+        map.setFilter('your-layer', ['all', 
+        ['>=', 'num_properties', minProperties], 
+        ['<=', 'num_properties', maxProperties],
+        ]);
+        numPropertiesRangeLabel.innerHTML = `${minProperties.toFixed(0)} - ${maxProperties.toFixed(0)}`;
+    });
+    
+    medianIncomeSlider.noUiSlider.on('update', function (values, handle) {
+        const minIncome = parseFloat(values[0]);
+        const maxIncome = parseFloat(values[1]);
+    
+        map.setFilter('your-layer', ['all', 
+        ['>=', 'MEDIAN_HOUSEHOLD_INCOME', minIncome], 
+        ['<=', 'MEDIAN_HOUSEHOLD_INCOME', maxIncome],
+        ]);
+        medianIncomeRangeLabel.innerHTML = `$${minIncome.toFixed(2)} - $${maxIncome.toFixed(2)}`;
+    });
+    
+
+});
+    </script>
+    
+    <div id="price-slider" class="slider"></div>
+    <p>Price per sqft: <span id="price-range"></span></p>
+    
+    <div id="school_score_slider" class="slider"></div> <!-- Corrected ID name here -->
+    <p>School score: <span id="school_score_range"></span></p> <!-- Corrected ID name here -->
+
+        <div id="num-properties-slider" class="slider"></div>
+    <p>Number of properties: <span id="num-properties-range"></span></p>
+
+    <div id="median-income-slider" class="slider"></div>
+    <p>Median income: <span id="median-income-range"></span></p>
+    
+    </body>
+    </html>
+    
