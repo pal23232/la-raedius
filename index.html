@@ -118,109 +118,121 @@ map.on('load', function () {
     const medianIncomeRangeLabel = document.getElementById('median-income-range');
     const numHomesRangeLabel = document.getElementById('num-homes-range');
     
+
+
+    let minPrice = 0;
+    let maxPrice = 1500;
+    let minScore = 0;
+    let maxScore = 10;
+    let minProperties = 0;
+    let maxProperties = 500;
+    let minIncome = 0;
+    let maxIncome = 250000;
+    let minHomes = 0;
+    let maxHomes = 2700;
+    
     noUiSlider.create(price_slider, {
-        start: [0, 1500],
+        start: [minPrice, maxPrice],
         connect: true,
         range: {
-            'min': 0,
-            'max': 1500
+            'min': minPrice,
+            'max': maxPrice
         }
     });
     
     noUiSlider.create(school_score_slider, { // Corrected variable name here
-        start: [0, 10],
+        start: [minScore, maxScore],
         connect: true,
         range: {
-            'min': 0,
-            'max': 10
+            'min': minScore,
+            'max': maxScore
         }
     });
 
     noUiSlider.create(numPropertiesSlider, {
-        start: [0, 5000],
+        start: [minProperties, maxProperties],
         connect: true,
         range: {
-            'min': 0,
-            'max': 500
+            'min': minProperties,
+            'max': maxProperties
         }
     });
 
     noUiSlider.create(numHomesSlider, {
-        start: [0, 2700],
+        start: [minHomes, maxHomes],
         connect: true,
         range: {
-            'min': 0,
-            'max': 2700
+            'min': minHomes,
+            'max': maxHomes
         }
     });
     
     noUiSlider.create(medianIncomeSlider, {
-        start: [0, 250000],
+        start: [minIncome, maxIncome],
         connect: true,
         range: {
-            'min': 0,
-            'max': 250000
+            'min': minIncome,
+            'max': maxIncome
         }
     });
+
+    // Update the map filter
+    function updateFilter() {
+        if (minPrice !== null && maxPrice !== null && minScore !== null && maxScore !== null && 
+            minProperties !== null && maxProperties !== null && minIncome !== null && 
+            maxIncome !== null && minHomes !== null && maxHomes !== null) {
+            map.setFilter('your-layer', ['all', 
+                ['>=', 'price_per_sqft_median', minPrice], 
+                ['<=', 'price_per_sqft_median', maxPrice],
+                ['>=', 'school_score', minScore], 
+                ['<=', 'school_score', maxScore],
+                ['>=', 'num_properties', minProperties], 
+                ['<=', 'num_properties', maxProperties],
+                ['>=', 'MEDIAN_HOUSEHOLD_INCOME', minIncome], 
+                ['<=', 'MEDIAN_HOUSEHOLD_INCOME', maxIncome],
+                ['>=', 'HOUSING_UNITS', minHomes], 
+                ['<=', 'HOUSING_UNITS', maxHomes]
+            ]);
+        }
+    }
+
     
     
     price_slider.noUiSlider.on('update', function (values, handle) {
-        const minPrice = parseFloat(values[0]);
-        const maxPrice = parseFloat(values[1]);
-    
-        map.setFilter('your-layer', ['all', 
-        ['>=', 'price_per_sqft_median', minPrice], 
-        ['<=', 'price_per_sqft_median', maxPrice],
-        ]);
+        minPrice = parseFloat(values[0]);
+        maxPrice = parseFloat(values[1]);
         priceRangeLabel.innerHTML = `${minPrice.toFixed(0)} - ${maxPrice.toFixed(0)}`;
+        updateFilter();
     });
     
     school_score_slider.noUiSlider.on('update', function (values, handle) { 
-        const minScore = parseFloat(values[0]);
-        const maxScore = parseFloat(values[1]);
-    
-        map.setFilter('your-layer', ['all', 
-        ['>=', 'school_score', minScore], 
-        ['<=', 'school_score', maxScore],
-        ]);
-        schoolScoreRangeLabel.innerHTML = `${minScore.toFixed(0)} - ${maxScore.toFixed(0)}`; // Corrected variable name here
-
-    
+        minScore = parseFloat(values[0]);
+        maxScore = parseFloat(values[1]);
+        schoolScoreRangeLabel.innerHTML = `${minScore.toFixed(0)} - ${maxScore.toFixed(0)}`;
+        updateFilter();
     });
-
+    
     numPropertiesSlider.noUiSlider.on('update', function (values, handle) {
-        const minProperties = parseFloat(values[0]);
-        const maxProperties = parseFloat(values[1]);
-    
-        map.setFilter('your-layer', ['all', 
-        ['>=', 'num_properties', minProperties], 
-        ['<=', 'num_properties', maxProperties],
-        ]);
+        minProperties = parseFloat(values[0]);
+        maxProperties = parseFloat(values[1]);
         numPropertiesRangeLabel.innerHTML = `${minProperties.toFixed(0)} - ${maxProperties.toFixed(0)}`;
+        updateFilter();
     });
-
+    
     numHomesSlider.noUiSlider.on('update', function (values, handle) {
-        const minProperties = parseFloat(values[0]);
-        const maxProperties = parseFloat(values[1]);
-    
-        map.setFilter('your-layer', ['all', 
-        ['>=', 'HOUSING_UNITS', minProperties], 
-        ['<=', 'HOUSING_UNITS', maxProperties],
-        ]);
-        numHomesRangeLabel.innerHTML = `${minProperties.toFixed(0)} - ${maxProperties.toFixed(0)}`;
+        minHomes = parseFloat(values[0]);
+        maxHomes = parseFloat(values[1]);
+        numHomesRangeLabel.innerHTML = `${minHomes.toFixed(0)} - ${maxHomes.toFixed(0)}`;
+        updateFilter();
     });
-    
-    
+        
     medianIncomeSlider.noUiSlider.on('update', function (values, handle) {
-        const minIncome = parseFloat(values[0]);
-        const maxIncome = parseFloat(values[1]);
-    
-        map.setFilter('your-layer', ['all', 
-        ['>=', 'MEDIAN_HOUSEHOLD_INCOME', minIncome], 
-        ['<=', 'MEDIAN_HOUSEHOLD_INCOME', maxIncome],
-        ]);
+        minIncome = parseFloat(values[0]);
+        maxIncome = parseFloat(values[1]);
         medianIncomeRangeLabel.innerHTML = `$${minIncome.toFixed(0)} - $${maxIncome.toFixed(0)}`;
+        updateFilter();
     });
+    
     
 
 });
