@@ -1,3 +1,6 @@
+
+<!-- https://pal23232.github.io/la-raedius/ -->
+
 <!DOCTYPE html>
 <html>
 
@@ -50,10 +53,11 @@ map.on('load', function () {
         'source': 'your-source',
         'source-layer': 'CA_MAPBOX-9n6m1z', // Source layer from tileset
         'paint': {
-            'circle-radius': {
-                'stops': [[10, 5], [14, 20], [18, 100]]  // adjust the circle-radius at different zoom levels
-            },
-            'circle-color': 'rgba(0, 255, 0, 0.4)', // 40% transparent green
+            'circle-radius': 10,
+           // 'circle-radius': {
+            //    'stops': [[10, 5], [14, 20], [18, 100]]  // adjust the circle-radius at different zoom levels
+            //},
+            'circle-color': 'rgba(0, 255, 255, 0.4)', // 40% transparent green
             'circle-stroke-width': 1,
             'circle-stroke-color': '#fff'
         }
@@ -66,6 +70,8 @@ map.on('load', function () {
         const school_rating = feature.properties.school_score;
         const price_per_sqft = feature.properties.price_per_sqft_median;
         const livingArea_median = feature.properties.livingArea_median;
+        const housing_units = feature.properties.HOUSING_UNITS;
+        const median_income = feature.properties.MEDIAN_HOUSEHOLD_INCOME;
     
         // Format price_per_sqft to a currency rounded to the nearest dollar
         const formatter = new Intl.NumberFormat('en-US', {
@@ -75,6 +81,7 @@ map.on('load', function () {
             maximumFractionDigits: 0
         });
         const formattedPricePerSqft = formatter.format(price_per_sqft);
+        const formattedMedianIncome = formatter.format(median_income);
     
         // Round livingArea_median to the nearest integer
         const roundedLivingArea = Math.round(livingArea_median);
@@ -82,11 +89,15 @@ map.on('load', function () {
         new mapboxgl.Popup()
             .setLngLat(e.lngLat)
             .setHTML(`
-                <h3>${school_name}</h3>
-                <p># of houses: ${num_houses}</p>
-                <p>school rating: ${school_rating}</p>
-                <p>Price per sqft: ${formattedPricePerSqft}</p>
-                <p>Home size: ${roundedLivingArea} sqft</p>
+                <div style="line-height: 0.7;">
+                    <h3>${school_name}</h3>
+                    <p># Houses sold last year: ${num_houses}</p>
+                    <p>School rating: ${school_rating}</p>
+                    <p>Price per sqft: ${formattedPricePerSqft}</p>
+                    <p>Home size: ${roundedLivingArea} sqft</p>
+                    <p># of homes: ${housing_units}</p>
+                    <p>Median income: ${formattedMedianIncome}</p>
+                </div>
             `)
             .addTo(map);
     });
@@ -150,7 +161,7 @@ map.on('load', function () {
         ['>=', 'price_per_sqft_median', minPrice], 
         ['<=', 'price_per_sqft_median', maxPrice],
         ]);
-        priceRangeLabel.innerHTML = `${minPrice.toFixed(2)} - ${maxPrice.toFixed(2)}`;
+        priceRangeLabel.innerHTML = `${minPrice.toFixed(0)} - ${maxPrice.toFixed(0)}`;
     });
     
     school_score_slider.noUiSlider.on('update', function (values, handle) { 
@@ -161,7 +172,7 @@ map.on('load', function () {
         ['>=', 'school_score', minScore], 
         ['<=', 'school_score', maxScore],
         ]);
-        schoolScoreRangeLabel.innerHTML = `${minScore.toFixed(2)} - ${maxScore.toFixed(2)}`; // Corrected variable name here
+        schoolScoreRangeLabel.innerHTML = `${minScore.toFixed(0)} - ${maxScore.toFixed(0)}`; // Corrected variable name here
 
     
     });
@@ -185,7 +196,7 @@ map.on('load', function () {
         ['>=', 'MEDIAN_HOUSEHOLD_INCOME', minIncome], 
         ['<=', 'MEDIAN_HOUSEHOLD_INCOME', maxIncome],
         ]);
-        medianIncomeRangeLabel.innerHTML = `$${minIncome.toFixed(2)} - $${maxIncome.toFixed(2)}`;
+        medianIncomeRangeLabel.innerHTML = `$${minIncome.toFixed(0)} - $${maxIncome.toFixed(0)}`;
     });
     
 
